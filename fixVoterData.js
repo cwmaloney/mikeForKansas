@@ -2,6 +2,7 @@
 
 const fs = require('fs');
 const csv = require('csv');
+const moment = require('moment');
 
 const inputColumnNames = [
   "text_name_first",
@@ -75,7 +76,7 @@ const parser = csv.parse({
   trim: true
 });
 
-const input = fs.createReadStream('d3-projection1.csv');
+const input = fs.createReadStream('d3-transform1.csv');
 
 const transform = csv.transform(function(row) {
   //console.log("input=", row);
@@ -106,8 +107,8 @@ const transform = csv.transform(function(row) {
   newRow.zipcode = row.text_res_zip5;
   newRow.precinctId = row.precinct_part_text_name;
   newRow.precinctName = row.precinct_text_name;
-  newRow.dateOfBirth = row.date_of_birth;
-  newRow.dateOfRegistration = row.date_of_registration;
+  newRow.dateOfBirth = moment(row.date_of_birth).format('YYYY-MM-DD');
+  newRow.dateOfRegistration = moment(row.date_of_registration).format('YYYY-MM-DD');
   newRow.homePhone = (row.text_phone_area_code
     + ' ' + row.text_phone_exchange
     + ' ' + row.text_phone_last_four).trim();
@@ -134,7 +135,7 @@ const transform = csv.transform(function(row) {
   return newRow;
   });
 
-const output = fs.createWriteStream('d3-projection2.csv');
+const output = fs.createWriteStream('d3-transform2.csv');
 
 input.pipe(parser)
   .pipe(transform)
