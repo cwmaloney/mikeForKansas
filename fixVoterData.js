@@ -46,7 +46,7 @@ const outputColumnNames = [
   "middleName",
   "lastName",
   "gender",
-  "registrantIt",
+  "registrantId",
   "address1",
   "address2",
   "city",
@@ -76,7 +76,19 @@ const parser = csv.parse({
   trim: true
 });
 
-const input = fs.createReadStream('d3-transform1.csv');
+const input = fs.createReadStream('d3-voters-transform1.csv');
+
+const currentYear = moment().year() - 2000;
+
+function parseDate(dateString) {
+  let date = moment(dateString, "MM/DD/Y");
+  if (date.year() < currentYear) {
+    date.year(date.year() + 2000);
+  } else {
+    date.year(date.year() + 1900);
+  }
+  return date;
+}
 
 const transform = csv.transform(function(row) {
   //console.log("input=", row);
@@ -107,8 +119,8 @@ const transform = csv.transform(function(row) {
   newRow.zipcode = row.text_res_zip5;
   newRow.precinctId = row.precinct_part_text_name;
   newRow.precinctName = row.precinct_text_name;
-  newRow.dateOfBirth = moment(row.date_of_birth).format('YYYY-MM-DD');
-  newRow.dateOfRegistration = moment(row.date_of_registration).format('YYYY-MM-DD');
+  newRow.dateOfBirth = parseDate(row.date_of_birth).format('YYYY-MM-DD');
+  newRow.dateOfRegistration = parseDate(row.date_of_registration).format('YYYY-MM-DD');
   newRow.homePhone = (row.text_phone_area_code
     + ' ' + row.text_phone_exchange
     + ' ' + row.text_phone_last_four).trim();
@@ -135,7 +147,7 @@ const transform = csv.transform(function(row) {
   return newRow;
   });
 
-const output = fs.createWriteStream('d3-transform2.csv');
+const output = fs.createWriteStream('d3-voters-transform2.csv');
 
 input.pipe(parser)
   .pipe(transform)
